@@ -1,6 +1,10 @@
 use crate::matrix::Matrix;
 use rand::Rng;
 
+pub trait Layer {
+    fn forward(&self, input: &Matrix) -> Matrix;
+}
+
 pub struct DenseLayer {
     input_size: usize,
     output_size: usize,
@@ -42,6 +46,20 @@ impl DenseLayer {
     }
 }
 
+impl Layer for DenseLayer {
+    fn forward(&self, input: &Matrix) -> Matrix {
+        let dot = input.dot(&self.weights);
+        let output = dot.map_rows(|row| {
+            row.iter()
+                .zip(self.biases.row(0).iter())
+                .map(|(x, b)| x + b)
+                .collect()
+        });
+
+        Matrix::from_vec(output)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -70,5 +88,22 @@ mod tests {
         let output = layer.forward(&input);
         assert_eq!(output.get(0, 0), 1.0 + 0.5);
         assert_eq!(output.get(0, 1), 2.0 - 0.5);
+    }
+
+    #[test]
+    fn test_layer_trait_forward() {
+        let input = Matrix::from_vec(vec![vec![1.0, 2.0]]);
+
+        let weights = Matrix::from_vec(vec![vec![1.0, 0.0], vec![0.0, 1.0]]);
+
+        let biases = Matrix::from_vec(vec![vec![0.5, -0.5]]);
+
+        let mut layer = DenseLayer::new(2, 2);
+        layer.weights = weights;
+        layer.biases = biases;
+
+        let output = Layer::forward(&layer, &input); // using trait call
+        assert_eq!(output.get(0, 0), 1.5);
+        assert_eq!(output.get(0, 1), 1.5);
     }
 }
