@@ -44,6 +44,14 @@ impl DenseLayer {
 
         Matrix::from_vec(output)
     }
+
+    pub fn set_weights(&mut self, weights: Matrix) {
+        self.weights = weights;
+    }
+
+    pub fn set_biases(&mut self, biases: Matrix) {
+        self.biases = biases;
+    }
 }
 
 impl Layer for DenseLayer {
