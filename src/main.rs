@@ -1,3 +1,4 @@
+mod activation;
 mod dataset;
 mod layer;
 mod matrix;
