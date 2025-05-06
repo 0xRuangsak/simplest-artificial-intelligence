@@ -66,6 +66,19 @@ impl Matrix {
 
         Matrix::from_vec(data)
     }
+
+    pub fn map<F>(&self, f: F) -> Matrix
+    where
+        F: Fn(f32) -> f32,
+    {
+        let data = self
+            .data
+            .iter()
+            .map(|row| row.iter().map(|&val| f(val)).collect())
+            .collect();
+
+        Matrix::from_vec(data)
+    }
 }
 
 #[cfg(test)]
@@ -119,5 +132,17 @@ mod tests {
         assert_eq!(result.get(0, 1), 22.0);
         assert_eq!(result.get(1, 0), 43.0);
         assert_eq!(result.get(1, 1), 50.0);
+    }
+
+    #[test]
+    fn test_matrix_map() {
+        let m = Matrix::from_vec(vec![vec![-1.0, 0.0], vec![1.0, 2.0]]);
+
+        let result = m.map(|x| x * x); // square all elements
+
+        assert_eq!(result.get(0, 0), 1.0);
+        assert_eq!(result.get(0, 1), 0.0);
+        assert_eq!(result.get(1, 0), 1.0);
+        assert_eq!(result.get(1, 1), 4.0);
     }
 }
