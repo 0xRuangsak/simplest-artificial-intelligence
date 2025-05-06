@@ -4,7 +4,8 @@ mod layer;
 mod loss;
 mod matrix;
 mod model;
+mod train;
 
 fn main() {
-    println!("Hello, world!");
+    train::train_example();
 }
