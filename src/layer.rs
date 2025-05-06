@@ -60,6 +60,22 @@ impl Layer for DenseLayer {
     }
 }
 
+pub struct ActivationLayer {
+    activation_fn: fn(f32) -> f32,
+}
+
+impl ActivationLayer {
+    pub fn new(activation_fn: fn(f32) -> f32) -> Self {
+        ActivationLayer { activation_fn }
+    }
+}
+
+impl Layer for ActivationLayer {
+    fn forward(&self, input: &Matrix) -> Matrix {
+        input.map(self.activation_fn)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -105,5 +121,19 @@ mod tests {
         let output = Layer::forward(&layer, &input); // using trait call
         assert_eq!(output.get(0, 0), 1.5);
         assert_eq!(output.get(0, 1), 1.5);
+    }
+
+    use crate::activation::sigmoid;
+
+    #[test]
+    fn test_activation_layer_sigmoid() {
+        let input = Matrix::from_vec(vec![vec![0.0, 2.0], vec![-2.0, 1.0]]);
+
+        let layer = ActivationLayer::new(sigmoid);
+        let output = layer.forward(&input);
+
+        assert!((output.get(0, 0) - 0.5).abs() < 1e-5); // sigmoid(0) = 0.5
+        assert!(output.get(0, 1) > 0.85); // sigmoid(2)
+        assert!(output.get(1, 0) < 0.2); // sigmoid(-2)
     }
 }
