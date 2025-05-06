@@ -1,6 +1,6 @@
 use crate::activation::sigmoid;
 use crate::dataset::generate_dataset;
-use crate::layer::{ActivationLayer, DenseLayer};
+use crate::layer::{ActivationLayer, DenseLayer, LayerEnum};
 use crate::loss::mean_squared_error;
 use crate::matrix::Matrix;
 use crate::model::Model;
@@ -9,16 +9,17 @@ pub fn train_example() {
     let data = generate_dataset();
 
     let mut model = Model::new();
-    model.add_layer(DenseLayer::new(10, 16));
-    model.add_layer(ActivationLayer::new(sigmoid));
-    model.add_layer(DenseLayer::new(16, 16));
-    model.add_layer(ActivationLayer::new(sigmoid));
-    model.add_layer(DenseLayer::new(16, 16));
-    model.add_layer(ActivationLayer::new(sigmoid));
-    model.add_layer(DenseLayer::new(16, 16));
-    model.add_layer(ActivationLayer::new(sigmoid));
-    model.add_layer(DenseLayer::new(16, 1));
-    model.add_layer(ActivationLayer::new(sigmoid));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(10, 16)));
+    model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(16, 16)));
+    model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(16, 16)));
+    model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(16, 16)));
+    model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(16, 1)));
+    model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
+
     let learning_rate = 0.1;
     let epochs = 20;
 
@@ -97,6 +98,6 @@ pub fn debug_forward_sample(model: &mut Model, input: &[u8], label: u8, number: 
     }
 
     let prediction = x.get(0, 0);
-    println!("🎯 Target: {}", label);
+    println!("🌟 Target: {}", label);
     println!("🔮 Final Prediction: {:.4}", prediction);
 }

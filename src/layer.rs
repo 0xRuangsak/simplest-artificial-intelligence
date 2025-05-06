@@ -1,37 +1,57 @@
 use crate::activation::sigmoid;
 use crate::matrix::Matrix;
 
-pub trait Layer: LayerClone {
-    fn forward(&mut self, input: &Matrix) -> Matrix;
-    fn backward(&mut self, input: &Matrix, grad_output: &Matrix) -> Matrix;
-    fn update(&mut self, learning_rate: f32);
+#[derive(Clone)]
+pub enum LayerEnum {
+    Dense(DenseLayer),
+    Activation(ActivationLayer),
 }
 
-pub trait LayerClone {
-    fn clone_box(&self) -> Box<dyn Layer>;
-}
-
-impl<T: 'static + Layer + Clone> LayerClone for T {
-    fn clone_box(&self) -> Box<dyn Layer> {
-        Box::new(self.clone())
+impl LayerEnum {
+    pub fn forward(&mut self, input: &Matrix) -> Matrix {
+        match self {
+            LayerEnum::Dense(layer) => layer.forward(input),
+            LayerEnum::Activation(layer) => layer.forward(input),
+        }
     }
-}
 
-impl Clone for Box<dyn Layer> {
-    fn clone(&self) -> Box<dyn Layer> {
-        self.clone_box()
+    pub fn backward(&mut self, input: &Matrix, grad_output: &Matrix) -> Matrix {
+        match self {
+            LayerEnum::Dense(layer) => layer.backward(input, grad_output),
+            LayerEnum::Activation(layer) => layer.backward(input, grad_output),
+        }
+    }
+
+    pub fn update(&mut self, learning_rate: f32) {
+        match self {
+            LayerEnum::Dense(layer) => layer.update(learning_rate),
+            LayerEnum::Activation(layer) => layer.update(learning_rate),
+        }
+    }
+
+    pub fn print_weights(&self, index: usize) {
+        match self {
+            LayerEnum::Dense(layer) => {
+                println!("📊 Dense Layer {} Weights:", index);
+                layer.weights.print("Weights");
+                layer.biases.print("Biases");
+            }
+            LayerEnum::Activation(_) => {
+                println!("⚙️ Activation Layer {} (no weights)", index);
+            }
+        }
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct DenseLayer {
-    input_size: usize,
-    output_size: usize,
-    weights: Matrix,
-    biases: Matrix,
-    last_input: Option<Matrix>,
-    grad_weights: Option<Matrix>,
-    grad_biases: Option<Matrix>,
+    pub input_size: usize,
+    pub output_size: usize,
+    pub weights: Matrix,
+    pub biases: Matrix,
+    pub last_input: Option<Matrix>,
+    pub grad_weights: Option<Matrix>,
+    pub grad_biases: Option<Matrix>,
 }
 
 impl DenseLayer {
@@ -45,7 +65,7 @@ impl DenseLayer {
         );
 
         let biases = Matrix::new(1, output_size);
-        DenseLayer {
+        Self {
             input_size,
             output_size,
             weights,
@@ -63,10 +83,8 @@ impl DenseLayer {
     pub fn set_biases(&mut self, biases: Matrix) {
         self.biases = biases;
     }
-}
 
-impl Layer for DenseLayer {
-    fn forward(&mut self, input: &Matrix) -> Matrix {
+    pub fn forward(&mut self, input: &Matrix) -> Matrix {
         let dot = input.dot(&self.weights);
         let output = dot.map_rows(|row| {
             row.iter()
@@ -77,19 +95,16 @@ impl Layer for DenseLayer {
         Matrix::from_vec(output)
     }
 
-    fn backward(&mut self, input: &Matrix, grad_output: &Matrix) -> Matrix {
+    pub fn backward(&mut self, input: &Matrix, grad_output: &Matrix) -> Matrix {
         self.last_input = Some(input.clone());
-
         let grad_w = input.transpose().dot(grad_output);
         let grad_b = grad_output.sum_rows();
-
         self.grad_weights = Some(grad_w);
         self.grad_biases = Some(grad_b);
-
         grad_output.dot(&self.weights.transpose())
     }
 
-    fn update(&mut self, learning_rate: f32) {
+    pub fn update(&mut self, learning_rate: f32) {
         if let Some(gw) = &self.grad_weights {
             self.weights = self.weights.add(&gw.map(|v| -learning_rate * v));
         }
@@ -114,18 +129,16 @@ impl ActivationLayer {
     }
 
     fn activation_derivative(&self, y: f32) -> f32 {
-        y * (1.0 - y) // sigmoid derivative
+        y * (1.0 - y)
     }
-}
 
-impl Layer for ActivationLayer {
-    fn forward(&mut self, input: &Matrix) -> Matrix {
+    pub fn forward(&mut self, input: &Matrix) -> Matrix {
         let output = input.map(self.activation_fn);
         self.last_output = Some(output.clone());
         output
     }
 
-    fn backward(&mut self, _input: &Matrix, grad_output: &Matrix) -> Matrix {
+    pub fn backward(&mut self, _input: &Matrix, grad_output: &Matrix) -> Matrix {
         let cached = self.last_output.as_ref().expect("Missing cached output");
         let result = cached
             .data()
@@ -141,13 +154,12 @@ impl Layer for ActivationLayer {
         Matrix::from_vec(result)
     }
 
-    fn update(&mut self, _learning_rate: f32) {}
+    pub fn update(&mut self, _learning_rate: f32) {}
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::activation::sigmoid;
 
     #[test]
     fn test_dense_layer_creation() {
@@ -165,25 +177,10 @@ mod tests {
         let biases = Matrix::from_vec(vec![vec![0.5, -0.5]]);
 
         let mut layer = DenseLayer::new(2, 2);
-        layer.weights = weights;
-        layer.biases = biases;
+        layer.set_weights(weights);
+        layer.set_biases(biases);
 
         let output = layer.forward(&input);
-        assert_eq!(output.get(0, 0), 1.0 + 0.5);
-        assert_eq!(output.get(0, 1), 2.0 - 0.5);
-    }
-
-    #[test]
-    fn test_layer_trait_forward() {
-        let input = Matrix::from_vec(vec![vec![1.0, 2.0]]);
-        let weights = Matrix::from_vec(vec![vec![1.0, 0.0], vec![0.0, 1.0]]);
-        let biases = Matrix::from_vec(vec![vec![0.5, -0.5]]);
-
-        let mut layer = DenseLayer::new(2, 2);
-        layer.weights = weights;
-        layer.biases = biases;
-
-        let output = layer.forward(&input); // using &mut self now
         assert_eq!(output.get(0, 0), 1.5);
         assert_eq!(output.get(0, 1), 1.5);
     }
