@@ -26,6 +26,20 @@ impl DenseLayer {
             biases,
         }
     }
+
+    pub fn forward(&self, input: &Matrix) -> Matrix {
+        let dot = input.dot(&self.weights);
+
+        // Add biases to each row (broadcasting)
+        let output = dot.map_rows(|row| {
+            row.iter()
+                .zip(self.biases.row(0).iter())
+                .map(|(x, b)| x + b)
+                .collect::<Vec<f32>>()
+        });
+
+        Matrix::from_vec(output)
+    }
 }
 
 #[cfg(test)]
@@ -39,5 +53,22 @@ mod tests {
         assert_eq!(layer.weights.cols(), 16);
         assert_eq!(layer.biases.rows(), 1);
         assert_eq!(layer.biases.cols(), 16);
+    }
+
+    #[test]
+    fn test_forward_no_activation() {
+        let input = Matrix::from_vec(vec![vec![1.0, 2.0]]);
+
+        let weights = Matrix::from_vec(vec![vec![1.0, 0.0], vec![0.0, 1.0]]);
+
+        let biases = Matrix::from_vec(vec![vec![0.5, -0.5]]);
+
+        let mut layer = DenseLayer::new(2, 2);
+        layer.weights = weights;
+        layer.biases = biases;
+
+        let output = layer.forward(&input);
+        assert_eq!(output.get(0, 0), 1.0 + 0.5);
+        assert_eq!(output.get(0, 1), 2.0 - 0.5);
     }
 }

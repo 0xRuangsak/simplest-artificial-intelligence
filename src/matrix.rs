@@ -14,6 +14,10 @@ impl Matrix {
         }
     }
 
+    pub fn row(&self, index: usize) -> &[f32] {
+        &self.data[index]
+    }
+
     pub fn rows(&self) -> usize {
         self.rows
     }
@@ -86,6 +90,13 @@ impl Matrix {
             .collect();
 
         Matrix::from_vec(data)
+    }
+
+    pub fn map_rows<F>(&self, f: F) -> Vec<Vec<f32>>
+    where
+        F: Fn(&[f32]) -> Vec<f32>,
+    {
+        self.data.iter().map(|row| f(row)).collect()
     }
 }
 
