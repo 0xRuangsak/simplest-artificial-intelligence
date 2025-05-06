@@ -33,6 +33,21 @@ impl Matrix {
 
         Matrix { rows, cols, data }
     }
+
+    pub fn add(&self, other: &Matrix) -> Matrix {
+        assert_eq!(self.rows, other.rows, "Row count mismatch");
+        assert_eq!(self.cols, other.cols, "Column count mismatch");
+
+        let data = (0..self.rows)
+            .map(|i| {
+                (0..self.cols)
+                    .map(|j| self.get(i, j) + other.get(i, j))
+                    .collect::<Vec<f32>>()
+            })
+            .collect::<Vec<Vec<f32>>>();
+
+        Matrix::from_vec(data)
+    }
 }
 
 #[cfg(test)]
@@ -57,5 +72,17 @@ mod tests {
         assert_eq!(m.get(1, 2), 6.0);
         assert_eq!(m.rows, 2);
         assert_eq!(m.cols, 3);
+    }
+
+    #[test]
+    fn test_matrix_add() {
+        let a = Matrix::from_vec(vec![vec![1.0, 2.0], vec![3.0, 4.0]]);
+
+        let b = Matrix::from_vec(vec![vec![5.0, 6.0], vec![7.0, 8.0]]);
+
+        let result = a.add(&b);
+
+        assert_eq!(result.get(0, 0), 6.0);
+        assert_eq!(result.get(1, 1), 12.0);
     }
 }
