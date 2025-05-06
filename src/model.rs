@@ -14,10 +14,30 @@ impl Model {
         self.layers.push(Box::new(layer));
     }
 
-    pub fn forward(&self, input: &Matrix) -> Matrix {
+    pub fn forward(&mut self, input: &Matrix) -> Matrix {
         self.layers
-            .iter()
+            .iter_mut()
             .fold(input.clone(), |acc, layer| layer.forward(&acc))
+    }
+
+    pub fn forward_verbose(&mut self, input: &Matrix) -> Matrix {
+        let mut x = input.clone();
+        x.print("📥 Input");
+
+        for (i, layer) in self.layers.iter_mut().enumerate() {
+            x = layer.forward(&x);
+            x.print(&format!("Layer {}", i));
+        }
+
+        x
+    }
+
+    pub fn layers(&self) -> &[Box<dyn Layer>] {
+        &self.layers
+    }
+
+    pub fn layers_mut(&mut self) -> std::slice::IterMut<'_, Box<dyn Layer>> {
+        self.layers.iter_mut()
     }
 }
 
@@ -39,8 +59,8 @@ mod tests {
         model.add_layer(ActivationLayer::new(sigmoid));
 
         let input = Matrix::from_vec(vec![vec![0.0, 2.0]]);
-
         let output = model.forward(&input);
+
         assert!((output.get(0, 0) - 0.5).abs() < 1e-5);
         assert!(output.get(0, 1) > 0.85); // sigmoid(2)
     }

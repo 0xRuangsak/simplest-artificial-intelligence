@@ -98,6 +98,32 @@ impl Matrix {
     {
         self.data.iter().map(|row| f(row)).collect()
     }
+
+    pub fn print(&self, label: &str) {
+        println!("{} ({}x{}):", label, self.rows, self.cols);
+        for (i, row) in self.data.iter().enumerate() {
+            let formatted: Vec<String> = row.iter().map(|v| format!("{:>7.4}", v)).collect();
+            println!("Row {:>3}: {}", i, formatted.join(" "));
+        }
+    }
+
+    pub fn transpose(&self) -> Matrix {
+        let data = (0..self.cols)
+            .map(|j| (0..self.rows).map(|i| self.get(i, j)).collect())
+            .collect();
+        Matrix::from_vec(data)
+    }
+
+    pub fn sum_rows(&self) -> Matrix {
+        let sums = (0..self.cols)
+            .map(|j| (0..self.rows).map(|i| self.get(i, j)).sum())
+            .collect();
+        Matrix::from_vec(vec![sums])
+    }
+
+    pub fn data(&self) -> &Vec<Vec<f32>> {
+        &self.data
+    }
 }
 
 #[cfg(test)]

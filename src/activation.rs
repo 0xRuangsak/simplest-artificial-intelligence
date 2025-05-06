@@ -1,12 +1,22 @@
+fn sigmoid_derivative(y: f32) -> f32 {
+    y * (1.0 - y)
+}
+
+/// Sigmoid activation function
 pub fn sigmoid(x: f32) -> f32 {
     1.0 / (1.0 + (-x).exp())
 }
 
+/// ReLU activation function
 pub fn relu(x: f32) -> f32 {
+    x.max(0.0)
+}
+
+pub fn leaky_relu(x: f32) -> f32 {
     if x > 0.0 {
         x
     } else {
-        0.0
+        0.01 * x
     }
 }
 
