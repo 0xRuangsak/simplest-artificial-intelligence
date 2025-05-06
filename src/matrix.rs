@@ -14,6 +14,14 @@ impl Matrix {
         }
     }
 
+    pub fn rows(&self) -> usize {
+        self.rows
+    }
+
+    pub fn cols(&self) -> usize {
+        self.cols
+    }
+
     pub fn get(&self, row: usize, col: usize) -> f32 {
         self.data[row][col]
     }

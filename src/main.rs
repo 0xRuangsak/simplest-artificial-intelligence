@@ -1,4 +1,5 @@
 mod dataset;
+mod layer;
 mod matrix;
 
 fn main() {
