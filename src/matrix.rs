@@ -48,6 +48,24 @@ impl Matrix {
 
         Matrix::from_vec(data)
     }
+
+    pub fn dot(&self, other: &Matrix) -> Matrix {
+        assert_eq!(self.cols, other.rows, "Dimension mismatch for dot product");
+
+        let data = (0..self.rows)
+            .map(|i| {
+                (0..other.cols)
+                    .map(|j| {
+                        (0..self.cols)
+                            .map(|k| self.get(i, k) * other.get(k, j))
+                            .sum()
+                    })
+                    .collect::<Vec<f32>>()
+            })
+            .collect::<Vec<Vec<f32>>>();
+
+        Matrix::from_vec(data)
+    }
 }
 
 #[cfg(test)]
@@ -84,5 +102,22 @@ mod tests {
 
         assert_eq!(result.get(0, 0), 6.0);
         assert_eq!(result.get(1, 1), 12.0);
+    }
+
+    #[test]
+    fn test_matrix_dot() {
+        let a = Matrix::from_vec(vec![vec![1.0, 2.0], vec![3.0, 4.0]]);
+
+        let b = Matrix::from_vec(vec![vec![5.0, 6.0], vec![7.0, 8.0]]);
+
+        // Expected:
+        // [1*5 + 2*7, 1*6 + 2*8] = [19, 22]
+        // [3*5 + 4*7, 3*6 + 4*8] = [43, 50]
+        let result = a.dot(&b);
+
+        assert_eq!(result.get(0, 0), 19.0);
+        assert_eq!(result.get(0, 1), 22.0);
+        assert_eq!(result.get(1, 0), 43.0);
+        assert_eq!(result.get(1, 1), 50.0);
     }
 }
