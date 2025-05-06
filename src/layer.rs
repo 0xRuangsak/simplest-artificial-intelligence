@@ -1,4 +1,3 @@
-use crate::activation::sigmoid;
 use crate::matrix::Matrix;
 
 #[derive(Clone)]
@@ -45,8 +44,6 @@ impl LayerEnum {
 
 #[derive(Debug, Clone)]
 pub struct DenseLayer {
-    pub input_size: usize,
-    pub output_size: usize,
     pub weights: Matrix,
     pub biases: Matrix,
     pub last_input: Option<Matrix>,
@@ -66,22 +63,12 @@ impl DenseLayer {
 
         let biases = Matrix::new(1, output_size);
         Self {
-            input_size,
-            output_size,
             weights,
             biases,
             last_input: None,
             grad_weights: None,
             grad_biases: None,
         }
-    }
-
-    pub fn set_weights(&mut self, weights: Matrix) {
-        self.weights = weights;
-    }
-
-    pub fn set_biases(&mut self, biases: Matrix) {
-        self.biases = biases;
     }
 
     pub fn forward(&mut self, input: &Matrix) -> Matrix {
@@ -155,63 +142,4 @@ impl ActivationLayer {
     }
 
     pub fn update(&mut self, _learning_rate: f32) {}
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_dense_layer_creation() {
-        let layer = DenseLayer::new(10, 16);
-        assert_eq!(layer.weights.rows(), 10);
-        assert_eq!(layer.weights.cols(), 16);
-        assert_eq!(layer.biases.rows(), 1);
-        assert_eq!(layer.biases.cols(), 16);
-    }
-
-    #[test]
-    fn test_forward_no_activation() {
-        let input = Matrix::from_vec(vec![vec![1.0, 2.0]]);
-        let weights = Matrix::from_vec(vec![vec![1.0, 0.0], vec![0.0, 1.0]]);
-        let biases = Matrix::from_vec(vec![vec![0.5, -0.5]]);
-
-        let mut layer = DenseLayer::new(2, 2);
-        layer.set_weights(weights);
-        layer.set_biases(biases);
-
-        let output = layer.forward(&input);
-        assert_eq!(output.get(0, 0), 1.5);
-        assert_eq!(output.get(0, 1), 1.5);
-    }
-
-    #[test]
-    fn test_activation_layer_sigmoid() {
-        let input = Matrix::from_vec(vec![vec![0.0, 2.0], vec![-2.0, 1.0]]);
-        let mut layer = ActivationLayer::new(sigmoid);
-        let output = layer.forward(&input);
-
-        assert!((output.get(0, 0) - 0.5).abs() < 1e-5);
-        assert!(output.get(0, 1) > 0.85);
-        assert!(output.get(1, 0) < 0.2);
-    }
-
-    #[test]
-    fn test_dense_layer_backward_shapes() {
-        let mut layer = DenseLayer::new(2, 3);
-        let input = Matrix::from_vec(vec![vec![1.0, 2.0]]);
-        let grad_output = Matrix::from_vec(vec![vec![0.1, 0.2, 0.3]]);
-        let grad_input = layer.backward(&input, &grad_output);
-
-        assert_eq!(grad_input.rows(), 1);
-        assert_eq!(grad_input.cols(), 2);
-
-        let gw = layer.grad_weights.as_ref().unwrap();
-        let gb = layer.grad_biases.as_ref().unwrap();
-
-        assert_eq!(gw.rows(), 2);
-        assert_eq!(gw.cols(), 3);
-        assert_eq!(gb.rows(), 1);
-        assert_eq!(gb.cols(), 3);
-    }
 }

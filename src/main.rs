@@ -1,6 +1,5 @@
 mod activation;
 mod dataset;
-mod interactive_infer;
 mod interface;
 mod layer;
 mod loss;

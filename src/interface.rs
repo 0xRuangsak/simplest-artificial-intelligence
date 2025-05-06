@@ -1,5 +1,4 @@
 use crate::dataset::generate_dataset;
-use crate::loss::mean_squared_error;
 use crate::matrix::Matrix;
 use crate::train::{debug_forward_sample, train_step};
 use std::io::{self, Write};
