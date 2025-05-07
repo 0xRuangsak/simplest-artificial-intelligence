@@ -37,15 +37,15 @@ pub fn run_ui() {
 
 fn build_model() -> Model {
     let mut model = Model::new();
-    model.add_layer(LayerEnum::Dense(DenseLayer::new(10, 16)));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(10, 8)));
     model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
-    model.add_layer(LayerEnum::Dense(DenseLayer::new(16, 16)));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(8, 8)));
     model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
-    model.add_layer(LayerEnum::Dense(DenseLayer::new(16, 16)));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(8, 8)));
     model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
-    model.add_layer(LayerEnum::Dense(DenseLayer::new(16, 16)));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(8, 8)));
     model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
-    model.add_layer(LayerEnum::Dense(DenseLayer::new(16, 1)));
+    model.add_layer(LayerEnum::Dense(DenseLayer::new(8, 1)));
     model.add_layer(LayerEnum::Activation(ActivationLayer::new(sigmoid)));
     model
 }

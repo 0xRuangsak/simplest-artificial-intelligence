@@ -77,4 +77,4 @@ This provides a balanced classification task with known rules, ideal for simple 
 
 ---
 
-Built with ❤️ by \[Ruangsak].
+Built with ❤️ by Ruangsak.
