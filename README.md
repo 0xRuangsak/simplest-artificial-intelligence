@@ -1,6 +1,6 @@
 # Simplest Artificial Intelligence
 
-This is a minimal, interactive neural network written in Rust from scratch. It is designed as an educational project to explore the basics of forward propagation, backpropagation, and neural network inference in a low-level, transparent way.
+I'm curious about how neural networks work, so I recreated one by building the simplest AI model to predict prime numbers. The model uses a 4-layer neural network, and I designed a function to observe the training and testing process at each layer.
 
 ## Features
 
