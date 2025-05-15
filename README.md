@@ -22,13 +22,13 @@ This is a minimal, interactive neural network written in Rust from scratch. It i
 The model consists of:
 
 * Input layer: 10-bit binary representation of a number (0-1023)
-* 4 hidden layers, each with 16 neurons
+* 4 hidden layers, each with 8 neurons
 * Output layer: 1 neuron representing probability of primality
 
 Layer structure:
 
 ```
-Input (10) → Dense(16) → Sigmoid → Dense(16) → Sigmoid → Dense(16) → Sigmoid → Dense(16) → Sigmoid → Dense(1) → Sigmoid
+Input (10) → Dense(8) → Sigmoid → Dense(8) → Sigmoid → Dense(8) → Sigmoid → Dense(8) → Sigmoid → Dense(1) → Sigmoid
 ```
 
 ## Usage
@@ -70,9 +70,8 @@ cargo run
 The dataset contains all numbers from 0 to 1023. Each number is:
 
 * Converted to a 10-bit binary vector
-* Labeled `1` if prime, else `0`
 
-This provides a balanced classification task with known rules, ideal for simple network exploration.
+* Labeled `1` if prime, else `0`
 
 
 ---
